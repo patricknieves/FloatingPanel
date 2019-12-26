@@ -159,40 +159,48 @@ class FloatingPanelSurfaceViewTests: XCTestCase {
 
     func test_surfaceView_cornderRaduis() {
         let surface = FloatingPanelSurfaceView(frame: CGRect(x: 0.0, y: 0.0, width: 320.0, height: 480.0))
-        XCTAssert(surface.cornerRadius == 0.0)
+        XCTAssert(surface.containerView.layer.cornerRadius == 0.0)
         XCTAssert(surface.containerView.layer.masksToBounds == false)
 
-        surface.cornerRadius = 10.0
+        let appearance = FloatingPanelSurfaceAppearance()
+
+        appearance.cornerRadius = 10.0
+        surface.appearance = appearance
         surface.layoutIfNeeded()
-        XCTAssert(surface.cornerRadius == 10.0)
         XCTAssert(surface.containerView.layer.cornerRadius == 10.0)
         XCTAssert(surface.containerView.layer.masksToBounds == true)
 
         surface.containerView.layer.cornerRadius = 12.0
         surface.layoutIfNeeded()
-        XCTAssert(surface.cornerRadius == 12.0)
+        XCTAssert(surface.containerView.layer.cornerRadius == 12.0)
         XCTAssert(surface.containerView.layer.masksToBounds == true)
 
-        surface.cornerRadius = 0.0
+        appearance.cornerRadius = 0.0
+        surface.appearance = appearance
         surface.layoutIfNeeded()
-        XCTAssert(surface.cornerRadius == 0.0)
         XCTAssert(surface.containerView.layer.cornerRadius == 0.0)
         XCTAssert(surface.containerView.layer.masksToBounds == false)
 
-        surface.containerView.layer.cornerRadius = 12.0
+        surface.containerView.layer.cornerRadius = 12.0 // Don't change it directly
+        XCTAssert(surface.containerView.layer.cornerRadius == 12.0)
+        XCTAssertFalse(surface.containerView.layer.masksToBounds == true)
+
         surface.setNeedsLayout()
         surface.layoutIfNeeded()
-        XCTAssert(surface.cornerRadius == 12.0)
-        XCTAssert(surface.containerView.layer.masksToBounds == true)
+        // Reset corner radius by the current appearance
+        XCTAssert(surface.containerView.layer.cornerRadius == 0.0)
+        XCTAssert(surface.containerView.layer.masksToBounds == false)
+
     }
 
     func test_surfaceView_border() {
         let surface = FloatingPanelSurfaceView(frame: CGRect(x: 0.0, y: 0.0, width: 320.0, height: 480.0))
-        XCTAssert(surface.borderColor == nil)
-        XCTAssert(surface.borderWidth == 0.0)
+        XCTAssert(surface.containerView.layer.borderWidth == 0.0)
 
-        surface.borderColor = .red
-        surface.borderWidth = 3.0
+        let appearance = FloatingPanelSurfaceAppearance()
+        appearance.borderColor = .red
+        appearance.borderWidth = 3.0
+        surface.appearance = appearance
         surface.layoutIfNeeded()
         XCTAssert(surface.containerView.layer.borderColor == UIColor.red.cgColor)
         XCTAssert(surface.containerView.layer.borderWidth == 3.0)

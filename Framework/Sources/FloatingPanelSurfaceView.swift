@@ -5,6 +5,38 @@
 
 import UIKit
 
+@objc
+public class FloatingPanelSurfaceAppearance: NSObject {
+    public var backgroundColor: UIColor?
+
+    /// The radius to use when drawing top rounded corners.
+    ///
+    /// `self.contentView` is masked with the top rounded corners automatically on iOS 11 and later.
+    /// On iOS 10, they are not automatically masked because of a UIVisualEffectView issue. See https://forums.developer.apple.com/thread/50854
+    public var cornerRadius: CGFloat = 0.0
+
+    /// A Boolean indicating whether the surface shadow is displayed.
+    public var shadowHidden: Bool = false
+
+    /// The color of the surface shadow.
+    public var shadowColor: UIColor = .black
+
+    /// The offset (in points) of the surface shadow.
+    public var shadowOffset: CGSize = CGSize(width: 0.0, height: 1.0)
+
+    /// The opacity of the surface shadow.
+    public var shadowOpacity: Float = 0.2
+
+    /// The blur radius (in points) used to render the surface shadow.
+    public var shadowRadius: CGFloat = 3
+
+    /// The width of the surface border.
+    public var borderColor: UIColor?
+
+    /// The color of the surface border.
+    public var borderWidth: CGFloat = 0.0
+}
+
 /// A view that presents a surface interface in a floating panel.
 public class FloatingPanelSurfaceView: UIView {
     /// A GrabberHandleView object displayed at the top of the surface view.
@@ -42,43 +74,16 @@ public class FloatingPanelSurfaceView: UIView {
         }
     }
 
-    private var color: UIColor? = .white { didSet { setNeedsLayout() } }
     var bottomOverflow: CGFloat = 0.0 // Must not call setNeedsLayout()
 
     public override var backgroundColor: UIColor? {
-        get { return color }
-        set { color = newValue }
+        get { return appearance.backgroundColor }
+        set { appearance.backgroundColor = newValue; setNeedsLayout() }
     }
 
-    /// The radius to use when drawing top rounded corners.
-    ///
-    /// `self.contentView` is masked with the top rounded corners automatically on iOS 11 and later.
-    /// On iOS 10, they are not automatically masked because of a UIVisualEffectView issue. See https://forums.developer.apple.com/thread/50854
-    public var cornerRadius: CGFloat {
-        set { containerView.layer.cornerRadius = newValue; setNeedsLayout() }
-        get { return containerView.layer.cornerRadius }
-    }
-
-    /// A Boolean indicating whether the surface shadow is displayed.
-    public var shadowHidden: Bool = false  { didSet { setNeedsLayout() } }
-
-    /// The color of the surface shadow.
-    public var shadowColor: UIColor = .black  { didSet { setNeedsLayout() } }
-
-    /// The offset (in points) of the surface shadow.
-    public var shadowOffset: CGSize = CGSize(width: 0.0, height: 1.0)  { didSet { setNeedsLayout() } }
-
-    /// The opacity of the surface shadow.
-    public var shadowOpacity: Float = 0.2 { didSet { setNeedsLayout() } }
-
-    /// The blur radius (in points) used to render the surface shadow.
-    public var shadowRadius: CGFloat = 3  { didSet { setNeedsLayout() } }
-
-    /// The width of the surface border.
-    public var borderColor: UIColor?  { didSet { setNeedsLayout() } }
-
-    /// The color of the surface border.
-    public var borderWidth: CGFloat = 0.0  { didSet { setNeedsLayout() } }
+    public var appearance = FloatingPanelSurfaceAppearance() { didSet {
+        setNeedsLayout()
+    }}
 
     /// The margins to use when laying out the container view wrapping content.
     public var containerMargins: UIEdgeInsets = .zero { didSet {
@@ -211,7 +216,7 @@ public class FloatingPanelSurfaceView: UIView {
         super.layoutSubviews()
         log.debug("surface view frame = \(frame)")
 
-        containerView.backgroundColor = color
+        containerView.backgroundColor = appearance.backgroundColor
 
         updateShadow()
         updateCornerRadius()
@@ -226,13 +231,13 @@ public class FloatingPanelSurfaceView: UIView {
     }
 
     private func updateShadow() {
-        if shadowHidden == false {
+        if appearance.shadowHidden == false {
             if #available(iOS 11, *) {
                 // For clear background. See also, https://github.com/SCENEE/FloatingPanel/pull/51.
-                layer.shadowColor = shadowColor.cgColor
-                layer.shadowOffset = shadowOffset
-                layer.shadowOpacity = shadowOpacity
-                layer.shadowRadius = shadowRadius
+                layer.shadowColor = appearance.shadowColor.cgColor
+                layer.shadowOffset = appearance.shadowOffset
+                layer.shadowOpacity = appearance.shadowOpacity
+                layer.shadowRadius = appearance.shadowRadius
             } else {
                 // Can't update `layer.shadow*` directly because of a UIVisualEffectView issue in iOS 10, https://forums.developer.apple.com/thread/50854
                 // Instead, a user should display shadow appropriately.
@@ -241,6 +246,7 @@ public class FloatingPanelSurfaceView: UIView {
     }
 
     private func updateCornerRadius() {
+        containerView.layer.cornerRadius = appearance.cornerRadius
         guard containerView.layer.cornerRadius != 0.0 else {
             containerView.layer.masksToBounds = false
             return
@@ -263,8 +269,8 @@ public class FloatingPanelSurfaceView: UIView {
     }
 
     private func updateBorder() {
-        containerView.layer.borderColor = borderColor?.cgColor
-        containerView.layer.borderWidth = borderWidth
+        containerView.layer.borderColor = appearance.borderColor?.cgColor
+        containerView.layer.borderWidth = appearance.borderWidth
     }
 
     func set(contentView: UIView) {
