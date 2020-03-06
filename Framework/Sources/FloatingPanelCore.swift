@@ -874,29 +874,31 @@ class FloatingPanelCore: NSObject, UIGestureRecognizerDelegate {
     // MARK: - ScrollView handling
 
     private func lockScrollView() {
-        guard let scrollView = scrollView else { return }
-
-        if scrollView.isLocked {
-            log.debug("Already scroll locked.")
-            return
-        }
-        log.debug("lock scroll view")
-
-        scrollBouncable = scrollView.bounces
-        scrollIndictorVisible = scrollView.showsVerticalScrollIndicator
-
-        scrollView.isDirectionalLockEnabled = true
-        scrollView.bounces = false
-        scrollView.showsVerticalScrollIndicator = false
+// Locking and Unlocking leads to unexpected behavior in Panel with paged views
+//        guard let scrollView = scrollView else { return }
+//
+//        if scrollView.isLocked {
+//            log.debug("Already scroll locked.")
+//            return
+//        }
+//        log.debug("lock scroll view")
+//
+//        scrollBouncable = scrollView.bounces
+//        scrollIndictorVisible = scrollView.showsVerticalScrollIndicator
+//
+//        scrollView.isDirectionalLockEnabled = true
+//        scrollView.bounces = false
+//        scrollView.showsVerticalScrollIndicator = false
     }
 
     private func unlockScrollView() {
-        guard let scrollView = scrollView, scrollView.isLocked else { return }
-        log.debug("unlock scroll view")
-
-        scrollView.isDirectionalLockEnabled = false
-        scrollView.bounces = scrollBouncable
-        scrollView.showsVerticalScrollIndicator = scrollIndictorVisible
+// Locking and Unlocking leads to unexpected behavior in Panel with paged views
+//        guard let scrollView = scrollView, scrollView.isLocked else { return }
+//        log.debug("unlock scroll view")
+//
+//        scrollView.isDirectionalLockEnabled = false
+//        scrollView.bounces = scrollBouncable
+//        scrollView.showsVerticalScrollIndicator = scrollIndictorVisible
     }
 
     private func stopScrollingWithDeceleration(at contentOffset: CGPoint) {
